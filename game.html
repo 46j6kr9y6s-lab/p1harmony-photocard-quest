@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P1ece Collector - P1Harmony Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .player-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .tier-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .level-display {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        main {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        .game-section {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .game-board {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        .level-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .level-info h2 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .level-info p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        .collected {
+            color: #667eea;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .boxes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .box {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border: 3px solid #ffc700;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .box:hover:not(.opened) {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        .box.opened {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .next-level-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .next-level-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .next-level-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .collection {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .collection h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .cards-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .card-item {
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            border-left: 4px solid;
+            font-size: 0.9em;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        .card {
+            width: 200px;
+            height: 280px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin: 20px auto;
+        }
+        @media (max-width: 768px) {
+            .game-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 P1ece Collector</h1>
+            <div class="player-info">
+                <div class="tier-badge" id="tierBadge">Baby P1ece</div>
+                <div class="level-display">
+                    <span>Level: <span id="currentLevel">1</span> / 1000</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="game-section">
+                <div style="grid-column: 1/-1;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <div class="game-board" style="grid-column: 1/-1;">
+                    <div class="level-info">
+                        <h2>Level <span id="levelNum">1</span></h2>
+                        <p>Collect 3 photocards to complete this level!</p>
+                        <p class="collected">Collected: <span id="collectedCount">0</span>/3</p>
+                    </div>
+                    <div class="boxes-container" id="boxesContainer"></div>
+                    <button class="next-level-btn" id="nextLevelBtn" disabled>Next Level →</button>
+                </div>
+
+                <div class="collection">
+                    <h3>📦 Cards</h3>
+                    <div class="cards-list" id="cardsList">
+                        <p>No cards yet!</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="modal" id="cardModal">
+            <div class="modal-content">
+                <span class="close" id="closeModal">&times;</span>
+                <div id="cardDisplay" class="card">💎</div>
+                <p id="cardRarity">Card!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const LEVELS = 1000;
+        const CARDS_TO_COLLECT = 3;
+
+        const RARITIES = {
+            'Common': { chance: 50, emoji: '⚪', color: '#95a5a6' },
+            'Rare': { chance: 30, emoji: '🔵', color: '#3498db' },
+            'Epic': { chance: 15, emoji: '🟣', color: '#9b59b6' },
+            'Mythic': { chance: 3, emoji: '🔴', color: '#e74c3c' },
+            'Legendary': { chance: 1.5, emoji: '🟡', color: '#f39c12' },
+            'Ultra Legendary': { chance: 0.5, emoji: '💎', color: '#c0392b' }
+        };
+
+        let gameState = {
+            currentLevel: 1,
+            collectedCards: [],
+            cardsInLevel: []
+        };
+
+        function init() {
+            const saved = localStorage.getItem('gameState');
+            if (saved) gameState = JSON.parse(saved);
+            render();
+        }
+
+        function getTier(level) {
+            if (level <= 200) return 'Baby P1ece';
+            if (level <= 400) return 'New P1ece';
+            if (level <= 600) return 'P1ece';
+            if (level <= 800) return 'Legendary P1ece';
+            return 'OG P1ece';
+        }
+
+        function getRarity() {
+            const rand = Math.random() * 100;
+            let sum = 0;
+            for (const [name, data] of Object.entries(RARITIES)) {
+                sum += data.chance;
+                if (rand <= sum) return name;
+            }
+            return 'Common';
+        }
+
+        function render() {
+            document.getElementById('tierBadge').textContent = getTier(gameState.currentLevel);
+            document.getElementById('currentLevel').textContent = gameState.currentLevel;
+            document.getElementById('levelNum').textContent = gameState.currentLevel;
+            
+            const progress = ((gameState.currentLevel - 1) / LEVELS) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            const container = document.getElementById('boxesContainer');
+            container.innerHTML = '';
+            gameState.cardsInLevel = [];
+
+            for (let i = 0; i < 5; i++) {
+                const box = document.createElement('div');
+                box.className = 'box';
+                box.textContent = '📦';
+                box.onclick = () => openBox(box);
+                container.appendChild(box);
+            }
+
+            updateCards();
+            updateButton();
+        }
+
+        function openBox(box) {
+            if (box.classList.contains('opened')) return;
+            box.classList.add('opened');
+
+            const rarity = getRarity();
+            const card = {
+                rarity: rarity,
+                emoji: RARITIES[rarity].emoji
+            };
+
+            gameState.cardsInLevel.push(card);
+            gameState.collectedCards.push(card);
+            localStorage.setItem('gameState', JSON.stringify(gameState));
+
+            showModal(card);
+            updateCards();
+            updateButton();
+        }
+
+        function showModal(card) {
+            const modal = document.getElementById('cardModal');
+            document.getElementById('cardDisplay').textContent = card.emoji;
+            document.getElementById('cardDisplay').style.background = RARITIES[card.rarity].color;
+            document.getElementById('cardRarity').textContent = card.rarity + '!';
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('cardModal').classList.remove('show');
+        }
+
+        function updateCards() {
+            const list = document.getElementById('cardsList');
+            if (gameState.collectedCards.length === 0) {
+                list.innerHTML = '<p>No cards yet!</p>';
+                return;
+            }
+            list.innerHTML = gameState.collectedCards.slice(-10).reverse().map(card => 
+                `<div class="card-item" style="border-left-color: ${RARITIES[card.rarity].color}">${card.emoji} ${card.rarity}</div>`
+            ).join('');
+        }
+
+        function updateButton() {
+            const btn = document.getElementById('nextLevelBtn');
+            btn.disabled = gameState.cardsInLevel.length < CARDS_TO_COLLECT;
+        }
+
+        document.getElementById('nextLevelBtn').onclick = () => {
+            if (gameState.currentLevel < LEVELS) {
+                gameState.currentLevel++;
+                gameState.cardsInLevel = [];
+                localStorage.setItem('gameState', JSON.stringify(gameState));
+                closeModal();
+                render();
+            } else {
+                alert('🎉 Congratulations! You are OG P1ece!');
+            }
+        };
+
+        document.getElementById('closeModal').onclick = closeModal;
+        window.onclick = (e) => {
+            if (e.target.id === 'cardModal') closeModal();
+        };
+
+        init();
+    </script>
+</body>
+</html>

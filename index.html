@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P1ece Collector - P1Harmony Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 P1ece Collector</h1>
+            <div class="player-info">
+                <div class="tier-badge" id="tierBadge">Baby P1ece</div>
+                <div class="level-display">
+                    <span>Level: </span>
+                    <span id="currentLevel">1</span>
+                    <span> / 1000</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="game-section">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <div class="game-board">
+                    <div class="level-info">
+                        <h2>Level <span id="levelNum">1</span></h2>
+                        <p>Collect <span id="targetCards">3</span> photocards to complete this level!</p>
+                        <p class="collected">Collected: <span id="collectedCount">0</span>/<span id="targetCards2">3</span></p>
+                    </div>
+
+                    <div class="boxes-container" id="boxesContainer">
+                        <!-- Boxes will be generated here -->
+                    </div>
+
+                    <button class="next-level-btn" id="nextLevelBtn" disabled>
+                        Next Level →
+                    </button>
+                </div>
+
+                <div class="collection">
+                    <h3>📦 Collected Photocards</h3>
+                    <div class="cards-list" id="cardsList">
+                        <p class="empty-message">No photocards yet. Open boxes to collect!</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="modal" id="cardModal">
+            <div class="modal-content">
+                <span class="close" id="closeModal">&times;</span>
+                <div class="card-display">
+                    <div class="card" id="cardDisplay">
+                        <!-- Card will be displayed here -->
+                    </div>
+                    <p id="cardRarity" class="card-rarity"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
